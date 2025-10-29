@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Information Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--secondary);
+            border-bottom: 2px solid var(--light);
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .required::after {
+            content: " *";
+            color: var(--danger);
+        }
+        
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px;
+        }
+        
+        .col {
+            flex: 1;
+            padding: 0 10px;
+            min-width: 250px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+        }
+        
+        .btn-warning:hover {
+            background-color: #e67e22;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .file-upload {
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .file-upload:hover {
+            border-color: var(--primary);
+        }
+        
+        .file-upload i {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .id-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .id-control input {
+            max-width: 120px;
+        }
+        
+        .id-control .btn {
+            padding: 10px 15px;
+        }
+        
+        .image-preview {
+            width: 150px;
+            height: 150px;
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        .scroll-buttons {
+            position: fixed;
+            right: 30px;
+            bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .scroll-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+        }
+        
+        .scroll-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .export-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .instructions {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #7f8c8d;
+            border-top: 1px solid #ddd;
+        }
+        
+        @media (max-width: 768px) {
+            .row {
+                flex-direction: column;
+            }
+            
+            .col {
+                width: 100%;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .id-control {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .id-control input {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Contact Information Manager</h1>
+            <p class="subtitle">Manage your contacts with ease - upload, edit, and export contact data</p>
+        </header>
+        
+        <div class="instructions card">
+            <h2>How to Use</h2>
+            <ol>
+                <li><strong>Upload File</strong> - Upload a CSV or Excel file with contact data</li>
+                <li><strong>Enter Contact ID</strong> - Type the ID of the contact you want to load</li>
+                <li><strong>Fetch Data</strong> - Click "Fetch Data from File" to populate the form</li>
+                <li><strong>Edit Contact</strong> - Modify contact information as needed</li>
+                <li><strong>Export</strong> - Download the contact in various formats (CSV, VCF, QR Code)</li>
+            </ol>
+        </div>
+        
+        <div class="card">
+            <h2 class="card-title">Upload Contact Data</h2>
+            <div class="file-upload" id="fileUploadArea">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Drag & Drop your CSV or Excel file here</p>
+                <p>or</p>
+                <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display: none;">
+                <button class="btn" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-file-upload"></i> Choose File
+                </button>
+                <p style="margin-top: 15px; font-size: 0.9rem;">
+                    <a href="#" id="downloadTemplate">Download Template</a>
+                </p>
+            </div>
+            <div id="fileInfo"></div>
+        </div>
+        
+        <div class="card">
+            <h2 class="card-title">Contact ID</h2>
+            <div class="id-control">
+                <div class="form-group">
+                    <label for="contactId">Contact ID</label>
+                    <input type="number" id="contactId" min="1" value="1">
+                </div>
+                <button class="btn" id="prevBtn"><i class="fas fa-chevron-left"></i> Previous</button>
+                <button class="btn" id="nextBtn">Next <i class="fas fa-chevron-right"></i></button>
+                <button class="btn btn-success" id="fetchBtn"><i class="fas fa-download"></i> Fetch Data from File</button>
+            </div>
+        </div>
+        
+        <form id="contactForm">
+            <div class="card">
+                <h2 class="card-title">Personal Information</h2>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="imageUpload" class="required">Profile Image</label>
+                            <div class="image-preview" id="imagePreview">
+                                <i class="fas fa-user" style="font-size: 48px; color: #ccc;"></i>
+                            </div>
+                            <input type="file" id="imageUpload" accept=".jpg,.jpeg,.png" required>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="firstName" class="required">First Name</label>
+                            <input type="text" id="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="middleName">Middle Name</label>
+                            <input type="text" id="middleName">
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName">
+                        </div>
+                        <div class="form-group">
+                            <label for="nickName">Nickname</label>
+                            <input type="text" id="nickName">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="phoneHome">Phone Home</label>
+                            <input type="text" id="phoneHome">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="phoneMobile" class="required">Phone Mobile</label>
+                            <input type="text" id="phoneMobile" required>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="dob">Date of Birth (dd-mmm-yyyy)</label>
+                            <input type="text" id="dob" placeholder="e.g., 15-Jan-1985">
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 style="margin: 20px 0 10px; color: var(--secondary);">Address</h3>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="street1">Street 1</label>
+                            <input type="text" id="street1">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="street2">Street 2</label>
+                            <input type="text" id="street2">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="zip">ZIP Code</label>
+                            <input type="text" id="zip">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="homeCountry">Home Country</label>
+                            <select id="homeCountry">
+                                <option value="">Select Country</option>
+                                <!-- Countries will be populated by JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">Work Information</h2>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="company">Company</label>
+                            <input type="text" id="company">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="department">Department</label>
+                            <input type="text" id="department">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="designation">Designation</label>
+                            <input type="text" id="designation">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="role">Role</label>
+                            <input type="text" id="role">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="phoneWork">Phone Work</label>
+                            <input type="text" id="phoneWork">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="workEmail">Email</label>
+                            <input type="email" id="workEmail">
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 style="margin: 20px 0 10px; color: var(--secondary);">Work Address</h3>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="workStreet1">Street 1</label>
+                            <input type="text" id="workStreet1">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="workStreet2">Street 2</label>
+                            <input type="text" id="workStreet2">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="workCity">City</label>
+                            <input type="text" id="workCity">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="workZip">ZIP Code</label>
+                            <input type="text" id="workZip">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="workCountry">Work Country</label>
+                            <select id="workCountry">
+                                <option value="">Select Country</option>
+                                <!-- Countries will be populated by JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">Instant Messaging</h2>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="whatsapp">WhatsApp</label>
+                            <input type="text" id="whatsapp">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="waBusiness">WA Business</label>
+                            <input type="text" id="waBusiness">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="imo">Imo</label>
+                            <input type="text" id="imo">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="viber">Viber</label>
+                            <input type="text" id="viber">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="twitter">Twitter</label>
+                            <input type="text" id="twitter">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="messenger">Messenger</label>
+                            <input type="text" id="messenger">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="wechat">WeChat</label>
+                            <input type="text" id="wechat">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="telegram">Telegram</label>
+                            <input type="text" id="telegram">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="snapchat">Snapchat</label>
+                            <input type="text" id="snapchat">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">Social Media</h2>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="facebook">Facebook</label>
+                            <input type="text" id="facebook">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="linkedin">LinkedIn</label>
+                            <input type="text" id="linkedin">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="instagram">Instagram</label>
+                            <input type="text" id="instagram">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="youtube">YouTube</label>
+                            <input type="text" id="youtube">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="fiverr">Fiverr</label>
+                            <input type="text" id="fiverr">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="upwork">Upwork</label>
+                            <input type="text" id="upwork">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="freelancer">Freelancer</label>
+                            <input type="text" id="freelancer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">Notes</h2>
+                <div class="form-group">
+                    <label for="notes">Additional Notes (max 500 characters)</label>
+                    <textarea id="notes" rows="4" maxlength="500"></textarea>
+                    <div style="text-align: right; margin-top: 5px; font-size: 0.9rem;">
+                        <span id="charCount">0</span>/500
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">Export Options</h2>
+                <div class="export-options">
+                    <button type="button" class="btn btn-success" id="exportCsv">
+                        <i class="fas fa-file-csv"></i> Download CSV
+                    </button>
+                    <button type="button" class="btn btn-warning" id="exportVcf">
+                        <i class="fas fa-address-card"></i> Download VCF
+                    </button>
+                    <button type="button" class="btn btn-danger" id="exportQr">
+                        <i class="fas fa-qrcode"></i> Download QR Code
+                    </button>
+                </div>
+            </div>
+        </form>
+        
+        <div class="scroll-buttons">
+            <div class="scroll-btn" id="scrollTopBtn">
+                <i class="fas fa-arrow-up"></i>
+            </div>
+            <div class="scroll-btn" id="scrollBottomBtn">
+                <i class="fas fa-arrow-down"></i>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Contact Information Manager &copy; 2023 | Designed for GitHub Pages Deployment</p>
+        </footer>
+    </div>
+
+    <script>
+        // Country list
+        const countries = [
+            "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", 
+            "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", 
+            "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", 
+            "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", 
+            "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", 
+            "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", 
+            "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", 
+            "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", 
+            "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", 
+            "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kosovo", 
+            "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", 
+            "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", 
+            "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", 
+            "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", 
+            "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", 
+            "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", 
+            "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", 
+            "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", 
+            "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", 
+            "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", 
+            "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", 
+            "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
+        ];
+
+        // Global variables
+        let uploadedData = [];
+        let currentId = 1;
+        let imageBase64 = "";
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Populate country dropdowns
+            populateCountries();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Initialize character count for notes
+            updateCharCount();
+        });
+
+        // Populate country dropdowns
+        function populateCountries() {
+            const homeCountry = document.getElementById('homeCountry');
+            const workCountry = document.getElementById('workCountry');
+            
+            countries.forEach(country => {
+                const option1 = document.createElement('option');
+                option1.value = country;
+                option1.textContent = country;
+                homeCountry.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = country;
+                option2.textContent = country;
+                workCountry.appendChild(option2);
+            });
+        }
+
+        // Set up all event listeners
+        function setupEventListeners() {
+            // File upload
+            document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+            
+            // Image upload
+            document.getElementById('imageUpload').addEventListener('change', handleImageUpload);
+            
+            // ID navigation
+            document.getElementById('prevBtn').addEventListener('click', () => navigateId(-1));
+            document.getElementById('nextBtn').addEventListener('click', () => navigateId(1));
+            document.getElementById('fetchBtn').addEventListener('click', fetchDataFromFile);
+            
+            // Export buttons
+            document.getElementById('exportCsv').addEventListener('click', exportToCsv);
+            document.getElementById('exportVcf').addEventListener('click', exportToVcf);
+            document.getElementById('exportQr').addEventListener('click', exportToQr);
+            
+            // Scroll buttons
+            document.getElementById('scrollTopBtn').addEventListener('click', scrollToTop);
+            document.getElementById('scrollBottomBtn').addEventListener('click', scrollToBottom);
+            
+            // Notes character count
+            document.getElementById('notes').addEventListener('input', updateCharCount);
+            
+            // Download template
+            document.getElementById('downloadTemplate').addEventListener('click', downloadTemplate);
+        }
+
+        // Handle file upload
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const fileInfo = document.getElementById('fileInfo');
+            fileInfo.innerHTML = `<p><i class="fas fa-file"></i> ${file.name}</p>`;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // Get the first worksheet
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                uploadedData = XLSX.utils.sheet_to_json(worksheet);
+                
+                fileInfo.innerHTML += `<p><i class="fas fa-check"></i> Successfully loaded ${uploadedData.length} contacts</p>`;
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Handle image upload and convert to base64
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imageBase64 = e.target.result;
+                document.getElementById('imagePreview').innerHTML = `<img src="${imageBase64}" alt="Profile Image">`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Navigate between IDs
+        function navigateId(direction) {
+            currentId += direction;
+            if (currentId < 1) currentId = 1;
+            document.getElementById('contactId').value = currentId;
+        }
+
+        // Fetch data from uploaded file based on ID
+        function fetchDataFromFile() {
+            const id = parseInt(document.getElementById('contactId').value);
+            
+            if (uploadedData.length === 0) {
+                alert('Please upload a file first!');
+                return;
+            }
+            
+            const contact = uploadedData.find(item => item.ID === id);
+            if (!contact) {
+                alert(`Contact with ID ${id} not found in the uploaded file!`);
+                return;
+            }
+            
+            // Populate form with contact data
+            Object.keys(contact).forEach(key => {
+                const field = document.getElementById(key);
+                if (field) {
+                    field.value = contact[key] || '';
+                }
+            });
+            
+            // Update current ID
+            currentId = id;
+            
+            alert(`Contact data for ID ${id} loaded successfully!`);
+        }
+
+        // Update character count for notes
+        function updateCharCount() {
+            const notes = document.getElementById('notes');
+            const charCount = document.getElementById('charCount');
+            charCount.textContent = notes.value.length;
+        }
+
+        // Export to CSV
+        function exportToCsv() {
+            if (!validateForm()) return;
+            
+            const contactData = getFormData();
+            const csvContent = convertToCsv(contactData);
+            const fileName = generateFileName() + '.csv';
+            
+            downloadFile(csvContent, fileName, 'text/csv');
+        }
+
+        // Export to VCF
+        function exportToVcf() {
+            if (!validateForm()) return;
+            
+            const contactData = getFormData();
+            const vcfContent = convertToVcf(contactData);
+            const fileName = generateFileName() + '.vcf';
+            
+            downloadFile(vcfContent, fileName, 'text/vcard');
+        }
+
+        // Export to QR Code
+        function exportToQr() {
+            if (!validateForm()) return;
+            
+            const contactData = getFormData();
+            const vcfContent = convertToVcf(contactData);
+            
+            // Generate QR code
+            const qr = qrcode(0, 'M');
+            qr.addData(vcfContent);
+            qr.make();
+            
+            const qrSvg = qr.createSvgTag(4);
+            const fileName = generateFileName() + '.svg';
+            
+            downloadFile(qrSvg, fileName, 'image/svg+xml');
+        }
+
+        // Scroll to top
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Scroll to bottom
+        function scrollToBottom() {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        // Download template
+        function downloadTemplate() {
+            const templateHeaders = [
+                "ID", "firstName", "middleName", "lastName", "nickName", "phoneHome", "phoneMobile", 
+                "email", "dob", "street1", "street2", "city", "zip", "homeCountry", "company", 
+                "department", "designation", "role", "phoneWork", "workEmail", "workStreet1", 
+                "workStreet2", "workCity", "workZip", "workCountry", "whatsapp", "waBusiness", 
+                "imo", "viber", "twitter", "messenger", "wechat", "telegram", "snapchat", 
+                "facebook", "linkedin", "instagram", "youtube", "fiverr", "upwork", "freelancer", 
+                "notes"
+            ];
+            
+            const csvContent = templateHeaders.join(',') + '\n1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,';
+            downloadFile(csvContent, 'contact_template.csv', 'text/csv');
+        }
+
+        // Helper functions
+        function validateForm() {
+            const firstName = document.getElementById('firstName').value;
+            const phoneMobile = document.getElementById('phoneMobile').value;
+            const imageUpload = document.getElementById('imageUpload').files[0];
+            
+            if (!firstName || !phoneMobile || !imageUpload) {
+                alert('Please fill all required fields (First Name, Phone Mobile, and Profile Image)!');
+                return false;
+            }
+            
+            return true;
+        }
+
+        function getFormData() {
+            const formData = {};
+            const formElements = document.getElementById('contactForm').elements;
+            
+            for (let element of formElements) {
+                if (element.id && element.id !== '') {
+                    if (element.type === 'file') continue; // Skip file inputs
+                    formData[element.id] = element.value;
+                }
+            }
+            
+            // Add image base64
+            formData.imageBase64 = imageBase64;
+            
+            return formData;
+        }
+
+        function convertToCsv(data) {
+            const headers = Object.keys(data).filter(key => key !== 'imageBase64');
+            const csvRows = [headers.join(',')];
+            
+            const row = headers.map(header => {
+                let value = data[header];
+                // Escape commas and quotes in CSV
+                if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+                    value = `"${value.replace(/"/g, '""')}"`;
+                }
+                return value;
+            });
+            
+            csvRows.push(row.join(','));
+            return csvRows.join('\n');
+        }
+
+        function convertToVcf(data) {
+            const vcf = [
+                'BEGIN:VCARD',
+                'VERSION:3.0',
+                `FN:${data.firstName} ${data.lastName}`,
+                `N:${data.lastName};${data.firstName};;;`,
+                `TEL;TYPE=HOME,VOICE:${data.phoneHome}`,
+                `TEL;TYPE=CELL,VOICE:${data.phoneMobile}`,
+                `TEL;TYPE=WORK,VOICE:${data.phoneWork}`,
+                `EMAIL:${data.email}`,
+                `ORG:${data.company}`,
+                `TITLE:${data.designation}`,
+                `ADR;TYPE=HOME:;;${data.street1};${data.city};;${data.zip};${data.homeCountry}`,
+                `ADR;TYPE=WORK:;;${data.workStreet1};${data.workCity};;${data.workZip};${data.workCountry}`,
+                `NOTE:${data.notes}`,
+                `URL:${data.facebook}`,
+                `URL:${data.linkedin}`,
+                `URL:${data.instagram}`,
+            ];
+            
+            // Add photo if available
+            if (data.imageBase64) {
+                vcf.push(`PHOTO;ENCODING=B;TYPE=JPEG:${data.imageBase64.split(',')[1]}`);
+            }
+            
+            vcf.push('END:VCARD');
+            return vcf.join('\n');
+        }
+
+        function generateFileName() {
+            const firstName = document.getElementById('firstName').value || 'Unknown';
+            const lastName = document.getElementById('lastName').value || 'Unknown';
+            const phoneMobile = document.getElementById('phoneMobile').value || 'Unknown';
+            
+            return `${firstName}_${lastName}_${phoneMobile}`.replace(/\s+/g, '_');
+        }
+
+        function downloadFile(content, fileName, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
